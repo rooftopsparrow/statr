@@ -78,12 +78,28 @@ class Vector < Array
     Vector.new(n)
   end
   
+  def freq
+    n = Vector.new
+    self.uniq.each do |i|
+      n.push(self.count(i))
+    end
+    Table.new(self.uniq, n)
+  end
+  
 end
 
 class Table
   
   def initialize(*args)
-    @table = [*args]
+    @table = {:data => args }
+  end
+  
+  def [](index)
+    @table[:data][index]
+  end
+  
+  def to_s
+    @table[:data]
   end
   
 end
