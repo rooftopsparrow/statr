@@ -1,7 +1,27 @@
-class Vector < Array
+require './table'
+
+class Vector
+
+  include Enumerable
   
   def initialize(*args)
-    super
+    @vector = [*args]
+  end
+  
+  def each(&block)
+    @vector.each(&block)
+  end
+  
+  def size
+    @vector.size
+  end
+  
+  def empty?
+    @vector.empty?
+  end
+  
+  def [](index)
+    @vector[index]
   end
   
   def sum
@@ -15,13 +35,13 @@ class Vector < Array
   def mean
     s = self.sum / self.size
   end
-  
+
   def trim(perc)
     raise "trim mean only accepts a range of 0 to 0.2" if not (0..0.2).include? perc
-    num = (perc * self.length).round
-    self.slice(num, self.length - (num * 2)).mean
+    num = (perc * self.size).round
+    self.slice(num, self.size - (num * 2)).mean
   end
-  
+
   def geo
     prod = 1.0
     self.each do |f|
@@ -29,22 +49,22 @@ class Vector < Array
     end
     prod**(1.0/self.size)
   end
-  
+
   def median
     a = self.sort
-    len = self.length
+    len = self.size
     if len % 2 == 0
       (a[len/2] + a[(len/2) - 1]) / 2.0
     else
       a[len/2]
     end
   end
-  
+
   def range
     n = self.sort
-    n[n.length] - n[0]
+    n[n.size] - n[0]
   end
-  
+
   def iqr
     arr = self.sort
     d = {}
@@ -59,7 +79,7 @@ class Vector < Array
     d[:ul] = d[:q3] + 1.5 * d[:irq]
     d
   end
-  
+
   def deviation
     xbar = self.mean
     total = 0
@@ -68,7 +88,7 @@ class Vector < Array
     end
     Math.sqrt(total/(self.size - 1))
   end
-  
+
   def standardize
     xbar = self.mean
     s = self.deviation
@@ -77,7 +97,7 @@ class Vector < Array
     end
     Vector.new(n)
   end
-  
+
   def freq
     n = Vector.new
     self.uniq.each do |i|
@@ -86,45 +106,8 @@ class Vector < Array
     Table.new(self.uniq, n)
   end
   
-end
-
-class Table
-  
-  def initialize(*args)
-    @table = {:data => args }
-  end
-  
-  def [](index)
-    @table[:data][index]
-  end
-  
   def to_s
-    @table[:data]
+    @vector
   end
   
-  def s(arg, sum=true)
-    v = Vector[]
-    if arg == 'xx'
-      x = y = @table[:data][0]
-    elsif arg == 'yy'
-      x = y = @table[:data][1]
-    elsif arg == 'xy'
-      x, y = @table[:data]
-    else
-      raise "Options include: 'xx', 'yy', or 'xy'"
-    end
-    xbar, ybar = x.mean, y.mean
-    for xi, yi in x.zip(y)
-      v.push((xi-xbar)*(yi-ybar))
-    end
-    if sum
-      v.sum
-    else
-      v
-    end
-  end
-  
-  def correlate
-    self.s('xy') / Math.sqrt(self.s('xx')*self.s('yy'))
-  end
-end
+end              
